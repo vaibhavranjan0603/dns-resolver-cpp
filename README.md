@@ -8,3 +8,4 @@ Progress:
 ✓ Day 2 - UDP Socket Basics
 ✓ Day 3 - DNS Header Structure
 ✓ Day 4 - DNS Question Packet Assembly
+✓ Day 5 - Receive DNS Response
