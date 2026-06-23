@@ -8,6 +8,7 @@
 
 using namespace std;
 
+#pragma pack(push, 1)
 struct DNSHeader {
     uint16_t id;
     uint16_t flags;
@@ -22,7 +23,9 @@ struct DNSQuestion {
     uint16_t qclass;
 };
 
-vector<uint8_t> encodeDomain(string domain) {
+#pragma pack(pop)
+
+vector<uint8_t> encodeDomain(const string& domain) {
     vector<uint8_t> encoded;
     string currentLabel = "";
 
@@ -61,8 +64,6 @@ int main() {
         return 1;
     }
 
-    cout << "DNSHeader size: " << sizeof(DNSHeader) << " bytes" << endl;
-    cout << "DNSQuestion size: " << sizeof(DNSQuestion) << " bytes" << endl;
     sockaddr_in dnsServer{};
 
     dnsServer.sin_family = AF_INET;
@@ -81,28 +82,48 @@ int main() {
     question.qtype = htons(1);
     question.qclass = htons(1);
 
-    cout << "DNS header initialized" << endl;
-
     vector<uint8_t> domain = encodeDomain("google.com");
     cout << "Encoded bytes: " << domain.size() << endl;
     for(uint8_t b : domain) {
     cout << (int)b << " ";
     }
     cout << endl;
+    cout << endl;
 
     vector<uint8_t> packet;
     packet.insert(packet.end(), (uint8_t*)&header, (uint8_t*)&header + sizeof(header));
-    cout << "Packet size after header: " << packet.size() << endl;
     packet.insert(packet.end(), domain.begin(), domain.end());
-    cout << "Packet size after domain: " << packet.size() << endl;
     packet.insert(packet.end(), (uint8_t*)&question, (uint8_t*)&question + sizeof(question));
-    cout << "Final packet size: " << packet.size() << endl;
+    cout << "Packet size: " << packet.size() << " bytes" << endl;
+    cout << endl;
 
+    uint8_t responseBuffer[512];
+    sockaddr_in senderAddr{};
+    socklen_t senderLen = sizeof(senderAddr);
+    
     int bytesSent = sendto(sockfd,packet.data(),packet.size(),0,(sockaddr*)&dnsServer,sizeof(dnsServer));
 
     cout << "Bytes sent: " << bytesSent << endl;
 
-    cout << "DNS header sent successfully!" << endl;
+    int bytesReceived = recvfrom(sockfd,responseBuffer,sizeof(responseBuffer),0,(sockaddr*)&senderAddr,&senderLen);
+
+    if (bytesReceived < 0) {
+    cerr << "Failed to receive response!" << endl;
+    close(sockfd);
+    return 1;
+    }
+
+    cout << "Bytes received: " << bytesReceived << endl;
+    cout << endl;
+    cout << "Response bytes: " << endl;
+
+    for(int i = 0; i < bytesReceived; i++) {
+    cout << (int)responseBuffer[i] << " ";
+    }
+    cout << endl;
+    cout << endl;
+
+    cout << "DNS query completed successfully!" << endl;
 
     close(sockfd);
     return 0;
