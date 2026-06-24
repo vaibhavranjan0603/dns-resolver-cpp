@@ -149,6 +149,43 @@ int main() {
     else cout << "Transaction ID mismatch." << endl;
 
     cout << endl;
+
+    int offset = 28;
+
+    offset += 2;
+
+    uint16_t type;
+    memcpy(&type, responseBuffer + offset, 2);
+    type = ntohs(type);
+    cout << "Record Type: " << type << endl;
+    offset += 2;
+
+    uint16_t recordClass;
+    memcpy(&recordClass, responseBuffer + offset, 2);
+    recordClass = ntohs(recordClass);
+    cout << "Record Class: " << recordClass << endl;
+    offset += 2;
+
+    uint32_t ttl;
+    memcpy(&ttl, responseBuffer + offset, 4);
+    ttl = ntohl(ttl);
+    cout << "TTL: " << ttl << " seconds" << endl;
+    offset += 4;
+
+    uint16_t rdlength;
+    memcpy(&rdlength, responseBuffer + offset, 2);
+    rdlength = ntohs(rdlength);
+    cout << "Data Length: " << rdlength << endl;
+    offset += 2;
+
+    cout << "Resolved IP: ";
+    cout << (int)responseBuffer[offset] << ".";
+    cout << (int)responseBuffer[offset + 1] << ".";
+    cout << (int)responseBuffer[offset + 2] << ".";
+    cout << (int)responseBuffer[offset + 3] << endl;
+
+    cout << endl;
+
     cout << "DNS query completed successfully!" << endl;
 
     close(sockfd);
