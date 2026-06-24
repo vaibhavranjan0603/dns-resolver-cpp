@@ -123,6 +123,32 @@ int main() {
     cout << endl;
     cout << endl;
 
+    DNSHeader responseHeader{};
+
+    memcpy(&responseHeader, responseBuffer, sizeof(DNSHeader));
+    
+    uint16_t responseId = ntohs(responseHeader.id);
+    uint16_t responseFlags = ntohs(responseHeader.flags);
+    uint16_t questionCount = ntohs(responseHeader.qdcount);
+    uint16_t answerCount = ntohs(responseHeader.ancount);
+    uint16_t authorityCount = ntohs(responseHeader.nscount);
+    uint16_t additionalCount = ntohs(responseHeader.arcount);
+    uint16_t rcode = responseFlags & 0x000F;
+
+    cout << "Response ID: " << responseId << endl;
+    cout << "Response Flags: 0x" << hex << responseFlags << dec << endl;
+    cout << "Question Count: " << questionCount << endl;
+    cout << "Answer Count: " << answerCount << endl;
+    cout << "Authority Count: " << authorityCount << endl;
+    cout << "Additional Count: " << additionalCount << endl;
+    cout << "Response Code: " << rcode << endl;
+
+    cout << endl;
+
+    if(responseId == 0x1234) cout << "Transaction ID matched." << endl;
+    else cout << "Transaction ID mismatch." << endl;
+
+    cout << endl;
     cout << "DNS query completed successfully!" << endl;
 
     close(sockfd);
