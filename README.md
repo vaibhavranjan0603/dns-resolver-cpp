@@ -9,3 +9,4 @@ Progress:
 ✓ Day 3 - DNS Header Structure
 ✓ Day 4 - DNS Question Packet Assembly
 ✓ Day 5 - Receive DNS Response
+✓ Day 6: Parse DNS response header
