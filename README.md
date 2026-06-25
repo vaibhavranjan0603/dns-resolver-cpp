@@ -11,3 +11,4 @@ Progress:
 ✓ Day 5 - Receive DNS Response
 ✓ Day 6 - Parse DNS response header
 ✓ Day 7 - Parse answer section
+✓ Day 8 - Multiple answers, compression and CNAME handling
