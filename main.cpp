@@ -90,6 +90,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+    setsockopt(sockfd,SOL_SOCKET,SO_RCVTIMEO,&tv,sizeof(tv));
+
     sockaddr_in dnsServer{};
 
     dnsServer.sin_family = AF_INET;
@@ -109,45 +114,25 @@ int main(int argc, char* argv[]) {
     question.qclass = htons(1);
 
     vector<uint8_t> domain = encodeDomain(domainName);
-    cout << "Encoded bytes: " << domain.size() << endl;
-    for(uint8_t b : domain) {
-    cout << (int)b << " ";
-    }
-    cout << endl;
-    cout << endl;
 
     vector<uint8_t> packet;
     packet.insert(packet.end(), (uint8_t*)&header, (uint8_t*)&header + sizeof(header));
     packet.insert(packet.end(), domain.begin(), domain.end());
     packet.insert(packet.end(), (uint8_t*)&question, (uint8_t*)&question + sizeof(question));
-    cout << "Packet size: " << packet.size() << " bytes" << endl;
-    cout << endl;
-
+    
     uint8_t responseBuffer[512];
     sockaddr_in senderAddr{};
     socklen_t senderLen = sizeof(senderAddr);
     
     int bytesSent = sendto(sockfd,packet.data(),packet.size(),0,(sockaddr*)&dnsServer,sizeof(dnsServer));
 
-    cout << "Bytes sent: " << bytesSent << endl;
-
     int bytesReceived = recvfrom(sockfd,responseBuffer,sizeof(responseBuffer),0,(sockaddr*)&senderAddr,&senderLen);
 
-    if (bytesReceived < 0) {
-    cerr << "Failed to receive response!" << endl;
+    if(bytesReceived < 0) {
+    cerr << "Error: No response from DNS server (timed out)." << endl;
     close(sockfd);
     return 1;
     }
-
-    cout << "Bytes received: " << bytesReceived << endl;
-    cout << endl;
-    cout << "Response bytes: " << endl;
-
-    for(int i = 0; i < bytesReceived; i++) {
-    cout << (int)responseBuffer[i] << " ";
-    }
-    cout << endl;
-    cout << endl;
 
     DNSHeader responseHeader{};
 
