@@ -39,7 +39,9 @@ The program sends raw DNS queries to Google’s public DNS server (8.8.8.8), rec
 
 ## Build
 
+```bash
 clang++ -std=c++17 -o main main.cpp
+```
 
 
 
@@ -97,10 +99,12 @@ DNS query completed successfully!
 
 ## Project Structure
 
+```text
 dns-resolver-cpp/
-│
 ├── main.cpp
 ├── README.md
+└── .gitignore
+```
 
 
 
