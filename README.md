@@ -4,7 +4,9 @@ A mini DNS resolver built completely from scratch in C++ without using any built
 
 The program sends raw DNS queries to Google’s public DNS server (8.8.8.8), receives the binary response over UDP, and manually parses the DNS packet to extract IP addresses.
 
-⸻
+
+
+
 
 ## Features
 
@@ -20,7 +22,9 @@ The program sends raw DNS queries to Google’s public DNS server (8.8.8.8), rec
 * Handles invalid domains
 * Uses socket timeout to avoid hanging forever
 
-⸻
+
+
+
 
 ## Technologies Used
 
@@ -29,13 +33,17 @@ The program sends raw DNS queries to Google’s public DNS server (8.8.8.8), rec
 * DNS protocol (RFC 1035)
 * Binary packet parsing
 
-⸻
+
+
+
 
 ## Build
 
 clang++ -std=c++17 -o main main.cpp
 
-⸻
+
+
+
 
 ## Usage
 
@@ -49,21 +57,24 @@ clang++ -std=c++17 -o main main.cpp
 
 ```
 
----
+
+
 
 ## Example Output
 
+```text
+$ ./main google.com
+
 Domain: google.com
-Response Code: 0
-Status: No Error
-Record Type: A
-Record Class: IN
-TTL: 160 seconds
+
 IP Addresses:
 1. 142.250.67.46
-DNS query completed successfully!
 
-⸻
+DNS query completed successfully!
+```
+
+
+
 
 ## Concepts Learned
 
@@ -80,7 +91,9 @@ DNS query completed successfully!
 * Multiple A records
 * Binary packet parsing
 
-⸻
+
+
+
 
 ## Project Structure
 
@@ -89,7 +102,9 @@ dns-resolver-cpp/
 ├── main.cpp
 ├── README.md
 
-⸻
+
+
+
 
 ## Future Improvements
 
@@ -99,7 +114,9 @@ dns-resolver-cpp/
 * Local DNS caching
 * Configurable DNS servers
 
-⸻
+
+
+
 
 ## Author
 
