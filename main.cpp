@@ -56,7 +56,33 @@ vector<uint8_t> encodeDomain(const string& domain) {
     return encoded;
 }
 
-int main() {
+int skipName(const uint8_t* buffer, int offset) {
+
+    while(true) {
+
+        uint8_t len = buffer[offset];
+
+        if((len & 0xC0) == 0xC0) {
+            return offset + 2;
+        }
+
+        if(len == 0) {
+            return offset + 1;
+        }
+
+        offset += len + 1;
+    }
+}
+
+int main(int argc, char* argv[]) {
+
+    if(argc != 2){
+    cout << "Usage: ./main <domain>" << endl;
+    return 1;
+    }
+    string domainName = argv[1];
+    cout << "Domain: " << domainName << endl << endl;
+
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (sockfd < 0) {
@@ -82,7 +108,7 @@ int main() {
     question.qtype = htons(1);
     question.qclass = htons(1);
 
-    vector<uint8_t> domain = encodeDomain("google.com");
+    vector<uint8_t> domain = encodeDomain(domainName);
     cout << "Encoded bytes: " << domain.size() << endl;
     for(uint8_t b : domain) {
     cout << (int)b << " ";
@@ -141,7 +167,25 @@ int main() {
     cout << "Answer Count: " << answerCount << endl;
     cout << "Authority Count: " << authorityCount << endl;
     cout << "Additional Count: " << additionalCount << endl;
+    
     cout << "Response Code: " << rcode << endl;
+    if(rcode == 0) cout << "Status: No Error" << endl;
+    else if(rcode == 1) cout << "Status: Format Error" << endl;
+    else if(rcode == 2) cout << "Status: Server Failure" << endl;
+    else if(rcode == 3) cout << "Status: Domain Not Found" << endl;
+    else cout << "Status: Unknown Error" << endl;
+
+    if(rcode != 0) {
+        cout << "DNS query failed." << endl;
+        close(sockfd);
+        return 1;
+    }
+
+    if(answerCount == 0) {
+        cout << "No answers received." << endl;
+        close(sockfd);
+        return 1;
+    }
 
     cout << endl;
 
@@ -150,40 +194,65 @@ int main() {
 
     cout << endl;
 
-    int offset = 28;
+    int offset = sizeof(DNSHeader) + domain.size() + sizeof(DNSQuestion);
 
-    offset += 2;
+    int ipCount = 1;
+    bool printed = false;
+
+    for(int i = 0; i < answerCount; i++) {
+    offset = skipName(responseBuffer, offset);
 
     uint16_t type;
     memcpy(&type, responseBuffer + offset, 2);
     type = ntohs(type);
-    cout << "Record Type: " << type << endl;
     offset += 2;
 
     uint16_t recordClass;
     memcpy(&recordClass, responseBuffer + offset, 2);
     recordClass = ntohs(recordClass);
-    cout << "Record Class: " << recordClass << endl;
     offset += 2;
 
     uint32_t ttl;
     memcpy(&ttl, responseBuffer + offset, 4);
     ttl = ntohl(ttl);
-    cout << "TTL: " << ttl << " seconds" << endl;
     offset += 4;
 
     uint16_t rdlength;
     memcpy(&rdlength, responseBuffer + offset, 2);
     rdlength = ntohs(rdlength);
-    cout << "Data Length: " << rdlength << endl;
     offset += 2;
 
-    cout << "Resolved IP: ";
+    if(type == 5) {
+    cout << "CNAME record found." << endl;
+    }
+
+    if(type == 1 && !printed) {
+    cout << "Record Type: A" << endl;
+
+    if(recordClass == 1)
+        cout << "Record Class: IN" << endl;
+    else
+        cout << "Record Class: " << recordClass << endl;
+
+    cout << "TTL: " << ttl << " seconds" << endl;
+    cout << "Data Length: " << rdlength << endl;
+
+    cout << endl;
+    cout << "IP Addresses:" << endl;
+
+    printed = true;
+    }
+
+    if(type == 1 && rdlength == 4) {
+    cout << ipCount++ << ". ";
     cout << (int)responseBuffer[offset] << ".";
     cout << (int)responseBuffer[offset + 1] << ".";
     cout << (int)responseBuffer[offset + 2] << ".";
     cout << (int)responseBuffer[offset + 3] << endl;
+    }
 
+    offset += rdlength;        
+    }
     cout << endl;
 
     cout << "DNS query completed successfully!" << endl;
