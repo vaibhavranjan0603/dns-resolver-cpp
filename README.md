@@ -39,11 +39,17 @@ clang++ -std=c++17 -o main main.cpp
 
 ## Usage
 
+```bash
+
 ./main google.com
+
 ./main brave.com
+
 ./main www.youtube.com
 
-⸻
+```
+
+---
 
 ## Example Output
 
@@ -97,9 +103,9 @@ dns-resolver-cpp/
 
 ## Author
 
-Vaibhav Ranjan
-24/CS/477
-B.Tech CSE (2024–2028)
-Delhi Technological University (DTU)
+**Vaibhav Ranjan**  
+24/CS/477  
+B.Tech CSE (2024–2028)  
+
+Delhi Technological University (DTU)  
 Computer Science and Engineering
->>>>>>> 4633f13 (Day 9: Final polish and README)
